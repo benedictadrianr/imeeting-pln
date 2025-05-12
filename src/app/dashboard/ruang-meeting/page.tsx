@@ -6,6 +6,7 @@ import React from "react";
 
 const RuangMeeting = async () => {
   const result = await getReservedRoom();
+  console.log("Reserved room:", result);
   return (
     <div>
       <RoomReservationList data={result} />

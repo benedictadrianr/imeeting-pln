@@ -28,7 +28,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { add, format, isBefore, isEqual, startOfDay } from "date-fns";
+import { add, format, isAfter, isBefore, isEqual, startOfDay } from "date-fns";
 import { id } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
@@ -319,7 +319,7 @@ const CreateRoomForm = ({ unitData, roomData, konsumsiData }: Props) => {
                       const timeValue = new Date(e);
                       if (selectedEnd) {
                         if (
-                          isBefore(timeValue, selectedEnd) ||
+                          isAfter(timeValue, selectedEnd) ||
                           isEqual(timeValue, selectedEnd)
                         ) {
                           form.setValue("timeEnd", "");
@@ -362,7 +362,7 @@ const CreateRoomForm = ({ unitData, roomData, konsumsiData }: Props) => {
                   <Select
                     onValueChange={field.onChange}
                     value={field.value}
-                    disabled={!selectedDate || !selectedStart}>
+                    disabled={!selectedDate || form.watch("timeStart") === ""}>
                     <FormControl className="w-full">
                       <SelectTrigger>
                         <SelectValue placeholder="Pilih Waktu Selesai" />
@@ -401,6 +401,7 @@ const CreateRoomForm = ({ unitData, roomData, konsumsiData }: Props) => {
                     type="number"
                     min={0}
                     max={selectedRoom ? selectedRoom.capacity : 999}
+                    disabled={!selectedRoom}
                     placeholder="Masukkan Jumlah Peserta"
                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
                     value={field.value}
