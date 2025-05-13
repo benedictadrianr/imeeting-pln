@@ -20,46 +20,44 @@ type Props = {
 const RuangMeetingLayout = ({ children }: Props) => {
   const path = usePathname();
   const isOrderPage = path === "/dashboard/ruang-meeting/pesan-ruang-meeting";
-  const isRoomPage = path === "/dashboard/ruang-meeting";
 
   return (
     <>
-      <div className="flex justify-between w-full">
-        <div className="flex items-center gap-4">
+      <div className="flex justify-between w-full mb-4">
+        <div className="flex items-start gap-4">
           {isOrderPage && (
             <Button
               className="bg-[#4A8394] aspect-square size-10 cursor-pointer"
-              type="button">
+              type="button"
+              asChild>
               <Link href={"/dashboard/ruang-meeting"}>
                 <ChevronLeft />
               </Link>
             </Button>
           )}
           <div>
-            <h1>Ruang Meeting</h1>
+            <h1 className="text-2xl font-bold">Ruang Meeting</h1>
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
-                  <BreadcrumbLink
-                    className={`${isRoomPage && "text-[#4A8394] cursor-auto"}`}
-                    asChild>
-                    {isRoomPage ? (
-                      <p>Ruang Meeting</p>
-                    ) : (
+                  {isOrderPage ? (
+                    <BreadcrumbLink
+                      className={`${
+                        isOrderPage && "text-[#4A8394] cursor-pointer "
+                      }`}
+                      asChild>
                       <Link href={"/dashboard/ruang-meeting"}>
                         Ruang Meeting
                       </Link>
-                    )}
-                  </BreadcrumbLink>
+                    </BreadcrumbLink>
+                  ) : (
+                    <p>Ruang Meeting</p>
+                  )}
                 </BreadcrumbItem>
                 {isOrderPage && (
                   <>
                     <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                      <BreadcrumbLink className="text-[#4A8394]">
-                        Pesan Ruangan
-                      </BreadcrumbLink>
-                    </BreadcrumbItem>
+                    <BreadcrumbItem>Pesan Ruangan</BreadcrumbItem>
                   </>
                 )}
               </BreadcrumbList>
@@ -76,7 +74,7 @@ const RuangMeetingLayout = ({ children }: Props) => {
           </Button>
         )}
       </div>
-      <div className="py-4 h-full">{children}</div>
+      <div className="py-4 max-h-[77vh] overflow-y-auto">{children}</div>
     </>
   );
 };

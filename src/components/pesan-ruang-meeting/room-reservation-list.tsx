@@ -1,8 +1,7 @@
 import { selectReservationSchema } from "@/drizzle/schema";
 import React from "react";
 import { z } from "zod";
-import { Card } from "../ui/card";
-import { add } from "date-fns";
+import RoomReservationItem from "./room-reservation-item";
 
 type Props = {
   data: z.infer<typeof selectReservationSchema>[];
@@ -10,19 +9,14 @@ type Props = {
 
 const RoomReservationList = ({ data }: Props) => {
   return (
-    <div>
-      {data.map((item) => (
-        <Card key={item.id}>
-          <p>Date:{add(item.date, { days: 1 }).toDateString()}</p>
-          <p>
-            Start time: {add(new Date(item.timeStart), { hours: 7 }).getHours()}
-            :00
-          </p>
-          <p>
-            End time: {add(new Date(item.timeEnd), { hours: 7 }).getHours()}:00
-          </p>
-        </Card>
-      ))}
+    <div className="flex flex-col gap-4">
+      {data.length === 0 ? (
+        <div className="w-full h-[150px] flex items-center justify-center text-muted-foreground">
+          There is no data
+        </div>
+      ) : (
+        data.map((item) => <RoomReservationItem key={item.id} item={item} />)
+      )}
     </div>
   );
 };

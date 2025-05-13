@@ -40,6 +40,7 @@ import { submitReservations } from "@/data/submitReservations";
 import { toast } from "sonner";
 import { insertReservationSchema } from "@/drizzle/schema";
 import { useDateUtils } from "@/hooks/useDateUtils";
+import Link from "next/link";
 
 type Props = {
   unitData?: UnitProps[] | null;
@@ -59,20 +60,28 @@ const CreateRoomForm = ({ unitData, roomData, konsumsiData }: Props) => {
       timeEnd: undefined,
       amount: undefined,
       foodType: [],
-      cost: undefined,
+      cost: 0,
     },
   });
-  const selectedDate = form.watch("date");
-  const { memoizedToday, timeOptions } = useDateUtils(selectedDate);
   const [calendarOpen, setCalendarOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const selectedUnit = form.watch("office");
   const selectedRoom = form.watch("room");
+  const selectedDate = form.watch("date");
   const selectedStart = new Date(form.watch("timeStart"));
   const selectedEnd = new Date(form.watch("timeEnd"));
   const amountPeople = form.watch("amount");
   const foodType = form.watch("foodType");
+  const notAdmissable =
+    !selectedUnit ||
+    !selectedRoom ||
+    !selectedDate ||
+    form.watch("timeStart") === "" ||
+    form.watch("timeEnd") === "" ||
+    !amountPeople;
   const filteredRoomData =
     roomData?.filter((room) => room.officeId === selectedUnit?.id) ?? [];
+  const { memoizedToday, timeOptions } = useDateUtils(selectedDate);
 
   const shouldDisableKonsumsiOption = (
     itemName: string,
@@ -100,6 +109,7 @@ const CreateRoomForm = ({ unitData, roomData, konsumsiData }: Props) => {
   };
 
   const onSubmit = async (data: z.infer<typeof insertReservationSchema>) => {
+    setIsLoading(true);
     const result = await submitReservations(data);
 
     if (!result.success && result.errors) {
@@ -114,20 +124,20 @@ const CreateRoomForm = ({ unitData, roomData, konsumsiData }: Props) => {
           form.setError(key as keyof typeof data, { message });
         }
       }
-    } else if (result.success) {
-      toast.success("Success");
+      setIsLoading(false);
     }
   };
 
   function calculateFoodCost(
-    foodTypes: string[],
+    foodTypes: (string | undefined)[],
     amountPeople: number
   ): number {
+    if (foodTypes.length === 0) return 0;
     return foodTypes.reduce((total, item) => {
-      if (item.includes("Snack")) {
+      if (item?.includes("Snack")) {
         return total + 20000 * amountPeople;
       }
-      if (item.includes("Makan")) {
+      if (item?.includes("Makan")) {
         return total + 30000 * amountPeople;
       }
       form.setValue("cost", total);
@@ -140,18 +150,21 @@ const CreateRoomForm = ({ unitData, roomData, konsumsiData }: Props) => {
     form.setValue("cost", cost);
   }, [foodType, amountPeople, form]);
 
+  console.log("Form :", form.watch());
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <h1>Informasi Ruang Meeting</h1>
-        <div className="flex gap-4">
-          <div className="w-1/4 flex-initial">
+        <h1 className="font-semibold">Informasi Ruang Meeting</h1>
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="w-full md:w-1/4 flex-initial">
             <FormField
               control={form.control}
               name="office"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Unit</FormLabel>
+                  <Select />
                   <Select
                     defaultValue={
                       field.value ? JSON.stringify(field.value) : ""
@@ -162,7 +175,7 @@ const CreateRoomForm = ({ unitData, roomData, konsumsiData }: Props) => {
                       field.onChange(selected);
                       form.setValue("room", null);
                     }}>
-                    <FormControl className=" w-full">
+                    <FormControl className="w-full">
                       <SelectTrigger>
                         <SelectValue placeholder="Pilih Unit" />
                       </SelectTrigger>
@@ -186,7 +199,7 @@ const CreateRoomForm = ({ unitData, roomData, konsumsiData }: Props) => {
               )}
             />
           </div>
-          <div className="w-1/4 flex-initial">
+          <div className="w-full md:w-1/4 flex-initial">
             <FormField
               control={form.control}
               name="room"
@@ -234,17 +247,20 @@ const CreateRoomForm = ({ unitData, roomData, konsumsiData }: Props) => {
           </div>
         </div>
 
-        <div className="w-1/4 flex-initial">
+        <div className="w-full md:w-1/4 flex-initial">
           <FormField
             name="capacity"
             render={() => (
               <FormItem>
                 <FormLabel>Kapasitas</FormLabel>
-                <Input
-                  type="number"
-                  disabled
-                  value={selectedRoom ? selectedRoom.capacity : 0}
-                />
+                <FormControl>
+                  <Input
+                    type="number"
+                    className="bg-[#D3D3D3]"
+                    disabled
+                    value={selectedRoom ? selectedRoom.capacity : 0}
+                  />
+                </FormControl>
               </FormItem>
             )}
           />
@@ -252,10 +268,10 @@ const CreateRoomForm = ({ unitData, roomData, konsumsiData }: Props) => {
 
         <Separator />
 
-        <h1>Informasi Rapat</h1>
+        <h1 className="font-semibold">Informasi Rapat</h1>
 
-        <div className="flex gap-4">
-          <div className="w-1/4 flex-initial">
+        <div className="flex flex-col lg:flex-row gap-4">
+          <div className="w-full  md:w-1/2 lg:w-1/3  flex-initial">
             <FormField
               control={form.control}
               name="date"
@@ -305,91 +321,93 @@ const CreateRoomForm = ({ unitData, roomData, konsumsiData }: Props) => {
             />
           </div>
 
-          <div className="w-1/4 flex-initial">
-            <FormField
-              control={form.control}
-              name="timeStart"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Waktu Mulai</FormLabel>
-                  <Select
-                    value={field.value}
-                    onValueChange={(e) => {
-                      field.onChange(e);
-                      const timeValue = new Date(e);
-                      if (selectedEnd) {
-                        if (
-                          isAfter(timeValue, selectedEnd) ||
-                          isEqual(timeValue, selectedEnd)
-                        ) {
-                          form.setValue("timeEnd", "");
-                        }
-                      }
-                    }}>
-                    <FormControl className="w-full">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Pilih Waktu Mulai" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {timeOptions.map((time, index) => (
-                        <SelectItem
-                          key={index}
-                          disabled={
-                            selectedDate &&
-                            selectedDate.toDateString() ===
-                              memoizedToday.toDateString() &&
-                            new Date().getHours() > time.getHours() - 2
+          <div className="flex flex-col gap-4 sm:flex-row w-full">
+            <div className="w-full sm:w-1/2 md:w-1/4 flex-initial">
+              <FormField
+                control={form.control}
+                name="timeStart"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Waktu Mulai</FormLabel>
+                    <Select
+                      value={field.value}
+                      onValueChange={(e) => {
+                        field.onChange(e);
+                        const timeValue = new Date(e);
+                        if (selectedEnd) {
+                          if (
+                            isAfter(timeValue, selectedEnd) ||
+                            isEqual(timeValue, selectedEnd)
+                          ) {
+                            form.setValue("timeEnd", "");
                           }
-                          value={time.toISOString()}>
-                          {time.getHours()}:00
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <div className="w-1/4 flex-initial">
-            <FormField
-              control={form.control}
-              name="timeEnd"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Waktu Selesai</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                    disabled={!selectedDate || form.watch("timeStart") === ""}>
-                    <FormControl className="w-full">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Pilih Waktu Selesai" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {timeOptions.map((time) => (
-                        <SelectItem
-                          key={time.toISOString()}
-                          disabled={isBefore(
-                            time,
-                            add(selectedStart, { hours: 1 })
-                          )}
-                          value={time.toISOString()}>
-                          {time.getHours()}:00
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                        }
+                      }}>
+                      <FormControl className="w-full">
+                        <SelectTrigger>
+                          <SelectValue placeholder="Pilih Waktu Mulai" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {timeOptions.map((time, index) => (
+                          <SelectItem
+                            key={index}
+                            disabled={
+                              selectedDate &&
+                              selectedDate.toDateString() ===
+                                memoizedToday.toDateString() &&
+                              new Date().getHours() > time.getHours() - 2
+                            }
+                            value={time.toISOString()}>
+                            {time.getHours()}:00
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="w-full sm:w-1/2 md:w-1/4 flex-initial">
+              <FormField
+                control={form.control}
+                name="timeEnd"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Waktu Selesai</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      disabled={!form.watch("timeStart")}>
+                      <FormControl className="w-full">
+                        <SelectTrigger>
+                          <SelectValue placeholder="Pilih Waktu Selesai" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {timeOptions.map((time) => (
+                          <SelectItem
+                            key={time.toISOString()}
+                            disabled={isBefore(
+                              time,
+                              add(selectedStart, { hours: 1 })
+                            )}
+                            value={time.toISOString()}>
+                            {time.getHours()}:00
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </div>
         </div>
 
-        <div className="w-1/4 flex-initial">
+        <div className="w-full md:w-1/4 flex-initial">
           <FormField
             control={form.control}
             name="amount"
@@ -414,7 +432,7 @@ const CreateRoomForm = ({ unitData, roomData, konsumsiData }: Props) => {
           />
         </div>
 
-        <div className="w-1/4 flex-initial">
+        <div className="flex-initial">
           <FormField
             control={form.control}
             name="foodType"
@@ -473,7 +491,7 @@ const CreateRoomForm = ({ unitData, roomData, konsumsiData }: Props) => {
           />
         </div>
 
-        <div className="w-1/4 flex-initial">
+        <div className="w-full md:w-1/4 flex-initial">
           <FormField
             control={form.control}
             name="cost"
@@ -486,7 +504,7 @@ const CreateRoomForm = ({ unitData, roomData, konsumsiData }: Props) => {
                   </div>
                   <FormControl>
                     <Input
-                      className="pl-10"
+                      className="pl-10 bg-[#D3D3D3]"
                       type="text"
                       disabled
                       min={0}
@@ -504,9 +522,17 @@ const CreateRoomForm = ({ unitData, roomData, konsumsiData }: Props) => {
 
         <Separator />
 
-        <Button className="cursor-pointer" type="submit">
-          Submit
-        </Button>
+        <div className="flex justify-end items-center">
+          <Link href={"/dashboard/ruang-meeting"} className="text-red-400 px-4">
+            Batal
+          </Link>
+          <Button
+            className="cursor-pointer bg-[#4A8394]"
+            disabled={isLoading || notAdmissable}
+            type="submit">
+            Submit
+          </Button>
+        </div>
       </form>
     </Form>
   );

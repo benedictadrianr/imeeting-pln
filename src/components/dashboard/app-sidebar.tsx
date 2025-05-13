@@ -10,7 +10,6 @@ export type SidebarDataProps = {
   title: string;
   url: string;
   icon: LucideIcon;
-  isActive?: boolean;
 };
 
 const data = [
@@ -28,8 +27,8 @@ const data = [
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="icon" className="top-12 border-none" {...props}>
-      <SidebarContent className="bg-white drop-shadow-xl">
+    <Sidebar variant="inset" collapsible="none" {...props}>
+      <SidebarContent className="bg-white drop-shadow-xl px-1">
         <NavMain items={data} />
       </SidebarContent>
     </Sidebar>

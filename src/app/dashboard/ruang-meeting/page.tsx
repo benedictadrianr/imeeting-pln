@@ -1,7 +1,6 @@
 export const dynamic = "force-dynamic";
 
 import RoomReservationList from "@/components/pesan-ruang-meeting/room-reservation-list";
-// import { getReservedRoom } from "@/data/getReservedRoom";
 import { db } from "@/drizzle/db";
 import { ReservationTable, selectReservationSchema } from "@/drizzle/schema";
 import React from "react";
@@ -11,7 +10,6 @@ const RuangMeeting = async () => {
   const result = (await db.select().from(ReservationTable)) as z.infer<
     typeof selectReservationSchema
   >[];
-  console.log("Reserved room:", result);
   return (
     <div>
       <RoomReservationList data={result} />

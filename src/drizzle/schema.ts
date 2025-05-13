@@ -69,7 +69,7 @@ export const selectReservationSchema = createSelectSchema(ReservationTable, {
       required_error: "Wajib menentukan total harga.",
       invalid_type_error: "Wajib menentukan total harga.",
     })
-    .gt(0, { message: "Wajib menentukan total harga." }),
+    .gte(0, { message: "Wajib menentukan total harga." }),
 });
 
 export const insertReservationSchema = createInsertSchema(ReservationTable, {
@@ -113,12 +113,9 @@ export const insertReservationSchema = createInsertSchema(ReservationTable, {
 
   foodType: z.array(z.string()),
 
-  cost: z
-    .number({
-      required_error: "Wajib menentukan total harga.",
-      invalid_type_error: "Wajib menentukan total harga.",
-    })
-    .gt(0, { message: "Wajib menentukan total harga." }),
+  cost: z.number({
+    invalid_type_error: "Wajib menentukan total harga.",
+  }),
 })
   .refine(
     (data) =>
@@ -127,9 +124,10 @@ export const insertReservationSchema = createInsertSchema(ReservationTable, {
       data.date &&
       data.timeStart &&
       data.timeEnd &&
-      data.amount &&
-      data.cost,
-    { message: "Terdapat form wajib yang belum terisi." }
+      data.amount && {
+        message: "Terdapat form wajib yang belum terisi.",
+        path: ["general"],
+      }
   )
   .refine((data) => data.room && data.room.capacity >= data.amount, {
     message: "Jumlah peserta tidak boleh melebihi kapasitas ruangan",

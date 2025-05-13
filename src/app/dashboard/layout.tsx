@@ -9,15 +9,15 @@ type Props = {
 
 const DashboardLayout = ({ children }: Props) => {
   return (
-    <>
-      <SidebarProvider open={false} className="flex flex-col">
+    <div className="[--header-height:calc(theme(spacing.14))]">
+      <SidebarProvider className="flex flex-col">
         <SiteHeader />
         <div className="flex flex-1">
           <AppSidebar />
           <div className="w-full p-6 bg-[#fafafa]">{children}</div>
         </div>
       </SidebarProvider>
-    </>
+    </div>
   );
 };
 

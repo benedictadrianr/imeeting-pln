@@ -13,7 +13,7 @@ const PesanRuangMeeting = async () => {
   const konsumsiData: KonsumsiProps[] | null = await getKonsumsi();
 
   return (
-    <Card className="w-full h-full rounded-[8px] py-5 px-7 bg-white">
+    <Card className="w-full h-full rounded-[8px] px-7 bg-white">
       <CreateRoomForm
         unitData={unitData}
         roomData={roomData}
