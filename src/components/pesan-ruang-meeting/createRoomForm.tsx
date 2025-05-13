@@ -41,6 +41,7 @@ import { toast } from "sonner";
 import { insertReservationSchema } from "@/drizzle/schema";
 import { useDateUtils } from "@/hooks/useDateUtils";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 type Props = {
   unitData?: UnitProps[] | null;
@@ -49,6 +50,7 @@ type Props = {
 };
 
 const CreateRoomForm = ({ unitData, roomData, konsumsiData }: Props) => {
+  const router = useRouter();
   const today = startOfDay(new Date());
   const form = useForm<z.infer<typeof insertReservationSchema>>({
     resolver: zodResolver(insertReservationSchema),
@@ -122,10 +124,15 @@ const CreateRoomForm = ({ unitData, roomData, konsumsiData }: Props) => {
           console.error(message);
         } else {
           form.setError(key as keyof typeof data, { message });
+          console.error(message);
         }
       }
+
       setIsLoading(false);
     }
+    toast.success("Info booking berhasil di ajukan.");
+    setIsLoading(false);
+    router.push("/dashboard/ruang-meeting");
   };
 
   function calculateFoodCost(
@@ -303,10 +310,12 @@ const CreateRoomForm = ({ unitData, roomData, konsumsiData }: Props) => {
                         onDayClick={() => setCalendarOpen(false)}
                         locale={id}
                         onSelect={(e) => {
-                          field.onChange(e);
-                          form.setValue("timeStart", "");
-                          form.setValue("timeEnd", "");
-                          form.setValue("foodType", []);
+                          if (e && new Date(e) !== new Date(field.value)) {
+                            field.onChange(e);
+                            form.setValue("timeStart", "");
+                            form.setValue("timeEnd", "");
+                            form.setValue("foodType", []);
+                          }
                         }}
                         disabled={(date) => {
                           return date < memoizedToday;
