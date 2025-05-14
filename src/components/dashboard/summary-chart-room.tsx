@@ -16,11 +16,15 @@ type Props = {
 
 const SummaryChartRoom = ({ room }: Props) => {
   function calculateNominal(
-    cost: { package: number; price: number }[]
+    cost: { name: string; package: number; price: number }[]
   ): number {
     let result = 0;
     for (let i = 0; i < cost.length; i++) {
-      result += cost[i].package * cost[i].price;
+      if (cost[i].name.includes("Snack")) {
+        result += cost[i].package * 20000;
+      } else if (cost[i].name.includes("Makan")) {
+        result += cost[i].package * 30000;
+      }
     }
     return result;
   }
@@ -63,7 +67,7 @@ const SummaryChartRoom = ({ room }: Props) => {
       <h1 className="text-sm text-[rgb(78,78,78)]">{room.roomName}</h1>
       <div className="flex justify-between">
         <div className="flex-initial w-[120px]">
-          <p className="text-xs text-[#625B71] text-wrap ">
+          <p className="text-xs text-[#625B71] text-wrap">
             Presentase Pemakaian
           </p>
           <p className="text-xl font-bold">{room.averageOccupancyPerMonth}%</p>
@@ -105,6 +109,7 @@ const SummaryChartRoom = ({ room }: Props) => {
           Rp{" "}
           {calculateNominal(
             room.totalConsumption.map((num) => ({
+              name: num.name,
               package: Number(num.totalPackage),
               price: Number(num.totalPrice),
             }))

@@ -2,7 +2,7 @@ import { selectReservationSchema } from "@/drizzle/schema";
 import React from "react";
 import { z } from "zod";
 import { Card } from "../ui/card";
-import { add } from "date-fns";
+import { add, format } from "date-fns";
 import {
   Building,
   DoorOpen,
@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Separator } from "../ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { id } from "date-fns/locale";
 
 type Props = {
   item: z.infer<typeof selectReservationSchema>;
@@ -43,12 +44,7 @@ const RoomReservationItem = ({ item }: Props) => {
           <p
             title="Tanggal Pengajuan"
             className="text-xs md:text-sm text-zinc-500">
-            {add(item.createdAt, { hours: 7 }).toLocaleDateString("id-ID", {
-              month: "long",
-              day: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
+            {format(new Date(item.createdAt), "d MMMM, HH:mm")}
           </p>
         </div>
       </div>
