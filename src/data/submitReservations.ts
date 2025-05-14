@@ -1,5 +1,6 @@
 "use server";
 
+import { getCurrentUser } from "@/auth/currentUser";
 import { db } from "@/drizzle/db";
 import { insertReservationSchema, ReservationTable } from "@/drizzle/schema";
 import { z } from "zod";
@@ -26,8 +27,11 @@ export async function submitReservations(
       return { success: false, errors: fieldErrors };
     }
 
+    const currentUser = await getCurrentUser();
+
     const finalData = {
       ...parsed.data,
+      username: currentUser ? currentUser.name : "No username",
     };
 
     const result = await db.insert(ReservationTable).values(finalData);

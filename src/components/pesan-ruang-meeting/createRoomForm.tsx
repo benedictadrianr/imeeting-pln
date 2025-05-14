@@ -135,29 +135,26 @@ const CreateRoomForm = ({ unitData, roomData, konsumsiData }: Props) => {
     router.push("/dashboard/ruang-meeting");
   };
 
-  function calculateFoodCost(
-    foodTypes: (string | undefined)[],
-    amountPeople: number
-  ): number {
-    if (foodTypes.length === 0) return 0;
-    return foodTypes.reduce((total, item) => {
-      if (item?.includes("Snack")) {
-        return total + 20000 * amountPeople;
-      }
-      if (item?.includes("Makan")) {
-        return total + 30000 * amountPeople;
-      }
-      form.setValue("cost", total);
-      return total;
-    }, 0);
-  }
-
   useEffect(() => {
+    function calculateFoodCost(
+      foodTypes: (string | undefined)[],
+      amountPeople: number
+    ): number {
+      if (foodTypes.length === 0) return 0;
+      return foodTypes.reduce((total, item) => {
+        if (item?.includes("Snack")) {
+          return total + 20000 * amountPeople;
+        }
+        if (item?.includes("Makan")) {
+          return total + 30000 * amountPeople;
+        }
+        form.setValue("cost", total);
+        return total;
+      }, 0);
+    }
     const cost = calculateFoodCost(foodType, amountPeople);
     form.setValue("cost", cost);
   }, [foodType, amountPeople, form]);
-
-  console.log("Form :", form.watch());
 
   return (
     <Form {...form}>
@@ -171,7 +168,6 @@ const CreateRoomForm = ({ unitData, roomData, konsumsiData }: Props) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Unit</FormLabel>
-                  <Select />
                   <Select
                     defaultValue={
                       field.value ? JSON.stringify(field.value) : ""
@@ -351,6 +347,7 @@ const CreateRoomForm = ({ unitData, roomData, konsumsiData }: Props) => {
                             form.setValue("timeEnd", "");
                           }
                         }
+                        form.setValue("foodType", []);
                       }}>
                       <FormControl className="w-full">
                         <SelectTrigger>
@@ -386,7 +383,10 @@ const CreateRoomForm = ({ unitData, roomData, konsumsiData }: Props) => {
                   <FormItem>
                     <FormLabel>Waktu Selesai</FormLabel>
                     <Select
-                      onValueChange={field.onChange}
+                      onValueChange={(e) => {
+                        field.onChange(e);
+                        form.setValue("foodType", []);
+                      }}
                       value={field.value}
                       disabled={!form.watch("timeStart")}>
                       <FormControl className="w-full">

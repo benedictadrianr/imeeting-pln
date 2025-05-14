@@ -74,7 +74,9 @@ const RuangMeetingLayout = ({ children }: Props) => {
           </Button>
         )}
       </div>
-      <div className="py-4 max-h-[77vh] overflow-y-auto">{children}</div>
+      <div className="py-4 max-h-[71vh] overflow-y-auto scrollbar-thin">
+        {children}
+      </div>
     </>
   );
 };

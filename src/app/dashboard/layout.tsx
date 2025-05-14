@@ -7,14 +7,16 @@ type Props = {
   children: React.ReactNode;
 };
 
-const DashboardLayout = ({ children }: Props) => {
+const DashboardLayout = async ({ children }: Props) => {
   return (
     <div className="[--header-height:calc(theme(spacing.14))]">
       <SidebarProvider className="flex flex-col">
         <SiteHeader />
         <div className="flex flex-1">
           <AppSidebar />
-          <div className="w-full p-6 bg-[#fafafa]">{children}</div>
+          <div className="w-full pl-6 lg:px-6 pt-6 bg-[#fafafa]">
+            {children}
+          </div>
         </div>
       </SidebarProvider>
     </div>

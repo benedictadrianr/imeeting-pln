@@ -13,6 +13,7 @@ import { z } from "zod";
 export const ReservationTable = pgTable("reservations", {
   id: integer().generatedAlwaysAsIdentity().primaryKey().notNull(),
   createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  username: text(),
   office: jsonb().notNull(),
   room: jsonb().notNull(),
   date: date({ mode: "date" }).notNull(),

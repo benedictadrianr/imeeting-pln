@@ -3,38 +3,112 @@ import React from "react";
 import { z } from "zod";
 import { Card } from "../ui/card";
 import { add } from "date-fns";
-import { Building, DoorOpen, Clock, Users, Calendar } from "lucide-react";
+import {
+  Building,
+  DoorOpen,
+  Clock,
+  Users,
+  Calendar,
+  HandPlatter,
+} from "lucide-react";
+import { Separator } from "../ui/separator";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 type Props = {
   item: z.infer<typeof selectReservationSchema>;
 };
 
 const RoomReservationItem = ({ item }: Props) => {
+  const tanpaKonsumsi = item.foodType.length === 0;
   return (
-    <Card key={item.id} className="px-4 gap-3 max-h-[150px]">
-      <div className="flex gap-2 items-baseline-last">
-        <div className="text-lg flex gap-1 min-w-[200px]">
-          <Building /> <h1>{item.office.officeName}</h1>
+    <Card key={item.id} className="p-4 gap-3 min-h-[203px]">
+      <div className="flex items-center gap-2">
+        <Avatar className="size-10 ">
+          <AvatarImage />
+          <AvatarFallback>
+            {(item.username ?? "P N")
+              .split(" ")
+              .slice(0, 2)
+              .map((word) => word[0])
+              .join("")
+              .toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+        <div>
+          <p
+            title="Pengaju Ruangan"
+            className="font-semibold text-sm md:text-base">
+            {item.username}
+          </p>
+          <p
+            title="Tanggal Pengajuan"
+            className="text-xs md:text-sm text-zinc-500">
+            {item.createdAt.toLocaleDateString("id-ID", {
+              month: "long",
+              day: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </p>
+        </div>
+      </div>
+      <Separator />
+      <div className="flex flex-col sm:flex-row gap-2">
+        <div className="flex items-end gap-1 min-w-[200px]" title="Unit/Gedung">
+          <Building />{" "}
+          <h1 className="text-sm md:text-base">{item.office.officeName}</h1>
         </div>
 
-        <div className="flex gap-1">
-          <DoorOpen /> <h2>{item.room?.roomName}</h2>
+        <div className="flex items-end gap-1" title="Ruangan">
+          <DoorOpen />{" "}
+          <h2 className="text-sm md:text-base">{item.room?.roomName}</h2>
         </div>
       </div>
-      <div className="flex gap-1">
-        <Users />
-        <p>{item.amount}</p>
-      </div>
-      <div className="flex gap-2">
-        <div className="flex min-w-[200px] gap-1">
-          <Calendar /> <p>{item.date.toDateString()}</p>
+      <div className="flex gap-2 flex-col sm:flex-row" title="Total Peserta">
+        <div className="flex items-end gap-1 min-w-[200px]">
+          <Users />
+          <p className="text-sm md:text-base">{item.amount}</p>
         </div>
-        <Clock />
-        <p>
-          {add(new Date(item.timeStart), { hours: 7 }).getHours()}
-          :00
-        </p>
-        -<p>{add(new Date(item.timeEnd), { hours: 7 }).getHours()}:00</p>
+        <div className="flex items-end gap-1" title="Jenis Konsumsi">
+          <HandPlatter className={tanpaKonsumsi ? "opacity-30" : ""} />
+          <p
+            className={`${tanpaKonsumsi && "opacity-30"} text-sm md:text-base`}>
+            {item.foodType.length === 0
+              ? "Tanpa konsumsi"
+              : item.foodType.map((food) => (
+                  <span key={food} className="group">
+                    {food}
+                    <span className="group-last:hidden">, </span>
+                  </span>
+                ))}
+          </p>
+        </div>
+      </div>
+      <div className="flex gap-2 flex-col sm:flex-row">
+        <div
+          className="flex items-end min-w-[200px] gap-1"
+          title="Tanggal Meeting">
+          <Calendar />{" "}
+          <p className="text-sm md:text-base">
+            {add(item.date, { days: 1 }).toLocaleDateString("id-ID", {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}
+          </p>
+        </div>
+        <div className="flex items-end gap-1" title="Jam Meeting">
+          <Clock />
+          <p className="text-sm md:text-base">
+            {add(new Date(item.timeStart), { hours: 7 }).getHours()}
+            :00
+          </p>
+          -
+          <p className="text-sm md:text-base">
+            {add(new Date(item.timeEnd), { hours: 7 }).getHours()}:00
+          </p>
+        </div>
       </div>
     </Card>
   );

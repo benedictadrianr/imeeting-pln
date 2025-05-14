@@ -40,7 +40,7 @@ const SignInForm = () => {
             <FormItem>
               <FormLabel>Insert your name...</FormLabel>
               <FormControl>
-                <Input type="text" {...field} />
+                <Input className="bg-white" type="text" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -81,7 +81,9 @@ const SignInForm = () => {
           )}
         />
 
-        <Button type="submit">Login</Button>
+        <Button className="w-full bg-[#4A8394] cursor-pointer" type="submit">
+          Login
+        </Button>
       </form>
     </Form>
   );

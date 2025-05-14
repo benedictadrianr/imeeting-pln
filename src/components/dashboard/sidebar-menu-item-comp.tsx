@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { SidebarMenuButton, SidebarMenuItem } from "../ui/sidebar";
+import { SidebarMenuButton, SidebarMenuItem, useSidebar } from "../ui/sidebar";
 import Link from "next/link";
 import { SidebarDataProps } from "./app-sidebar";
 
@@ -10,6 +10,7 @@ type Props = {
 };
 
 const SidebarMenuItemComp = ({ item, path }: Props) => {
+  const { setIsHovered } = useSidebar();
   function PathEqual(path: string, url: string) {
     if (url === "/dashboard") return url === path;
     if (url === "/dashboard/ruang-meeting") return path.startsWith(url);
@@ -19,6 +20,12 @@ const SidebarMenuItemComp = ({ item, path }: Props) => {
       <SidebarMenuButton
         size={"lg"}
         tooltip={item.title}
+        onMouseEnter={() => {
+          if (item.url === "/dashboard") setIsHovered(true);
+        }}
+        onMouseLeave={() => {
+          if (item.url === "/dashboard") setIsHovered(false);
+        }}
         isActive={PathEqual(path, item.url)}
         className="cursor-pointer justify-center group transition-all ease-in-out duration-300"
         asChild>
