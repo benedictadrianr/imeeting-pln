@@ -2,7 +2,7 @@ import { selectReservationSchema } from "@/drizzle/schema";
 import React from "react";
 import { z } from "zod";
 import { Card } from "../ui/card";
-import { add, format } from "date-fns";
+import { add } from "date-fns";
 import {
   Building,
   DoorOpen,
@@ -43,7 +43,12 @@ const RoomReservationItem = ({ item }: Props) => {
           <p
             title="Tanggal Pengajuan"
             className="text-xs md:text-sm text-zinc-500">
-            {format(new Date(item.createdAt), "d MMMM, HH:mm")}
+            {add(item.createdAt, { hours: 7 }).toLocaleDateString("id-ID", {
+              month: "long",
+              day: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
           </p>
         </div>
       </div>
