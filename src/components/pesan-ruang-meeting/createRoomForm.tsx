@@ -539,7 +539,7 @@ const CreateRoomForm = ({ unitData, roomData, konsumsiData }: Props) => {
             className="cursor-pointer bg-[#4A8394]"
             disabled={isLoading || notAdmissable}
             type="submit">
-            Submit
+            {isLoading ? "Submitting..." : "Submit"}
           </Button>
         </div>
       </form>

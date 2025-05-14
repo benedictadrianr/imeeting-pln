@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   Form,
   FormControl,
@@ -19,6 +19,7 @@ import { signIn } from "@/auth/actions";
 import { Button } from "../ui/button";
 
 const SignInForm = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const form = useForm<z.infer<typeof signInSchema>>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
@@ -28,7 +29,9 @@ const SignInForm = () => {
   });
 
   async function onSubmit(data: z.infer<typeof signInSchema>) {
+    setIsLoading(true);
     await signIn(data);
+    setIsLoading(false);
   }
   return (
     <Form {...form}>
@@ -81,8 +84,11 @@ const SignInForm = () => {
           )}
         />
 
-        <Button className="w-full bg-[#4A8394] cursor-pointer" type="submit">
-          Login
+        <Button
+          disabled={isLoading}
+          className="w-full bg-[#4A8394] cursor-pointer"
+          type="submit">
+          {isLoading ? "Loging in..." : "Login"}
         </Button>
       </form>
     </Form>

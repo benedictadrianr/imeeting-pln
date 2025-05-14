@@ -11,15 +11,20 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 type Props = {
   children: React.ReactNode;
 };
 
 const RuangMeetingLayout = ({ children }: Props) => {
+  const [isLoading, setIsLoading] = useState(false);
   const path = usePathname();
   const isOrderPage = path === "/dashboard/ruang-meeting/pesan-ruang-meeting";
+
+  useEffect(() => {
+    setIsLoading(false);
+  }, [path]);
 
   return (
     <>
@@ -27,6 +32,8 @@ const RuangMeetingLayout = ({ children }: Props) => {
         <div className="flex items-start gap-4">
           {isOrderPage && (
             <Button
+              disabled={isLoading}
+              onClick={() => setIsLoading(true)}
               className="bg-[#4A8394] aspect-square size-10 cursor-pointer"
               type="button"
               asChild>
@@ -65,11 +72,16 @@ const RuangMeetingLayout = ({ children }: Props) => {
           </div>
         </div>
         {!isOrderPage && (
-          <Button className="bg-[#4A8394]" type={"button"} asChild>
+          <Button
+            disabled={isLoading}
+            className="bg-[#4A8394]"
+            type={"button"}
+            asChild>
             <Link
+              onClick={() => setIsLoading(true)}
               className="cursor-pointer"
               href="ruang-meeting/pesan-ruang-meeting">
-              + Pesan Ruangan
+              {isLoading ? "Loading..." : "+ Pesan Ruangan"}
             </Link>
           </Button>
         )}
