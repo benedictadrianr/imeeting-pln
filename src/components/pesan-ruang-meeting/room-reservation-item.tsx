@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import { Separator } from "../ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { id } from "date-fns/locale";
 
 type Props = {
   item: z.infer<typeof selectReservationSchema>;
