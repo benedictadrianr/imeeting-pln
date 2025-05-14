@@ -43,7 +43,7 @@ const RoomReservationItem = ({ item }: Props) => {
           <p
             title="Tanggal Pengajuan"
             className="text-xs md:text-sm text-zinc-500">
-            {item.createdAt.toLocaleDateString("id-ID", {
+            {add(item.createdAt, { hours: 7 }).toLocaleDateString("id-ID", {
               month: "long",
               day: "numeric",
               hour: "2-digit",
