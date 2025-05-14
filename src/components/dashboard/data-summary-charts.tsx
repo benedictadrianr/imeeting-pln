@@ -60,13 +60,12 @@ const DataSummaryCharts = ({ data }: Props) => {
                           {data ? (
                             data.map((item) => (
                               <SelectItem key={item.id} value={item.period}>
-                                {new Date(item.period).toLocaleDateString(
-                                  "id-ID",
-                                  {
-                                    month: "long",
-                                    year: "numeric",
-                                  }
-                                )}
+                                {new Date(
+                                  item.period.replace(/-/g, "/")
+                                ).toLocaleDateString("id-ID", {
+                                  month: "long",
+                                  year: "numeric",
+                                })}
                               </SelectItem>
                             ))
                           ) : (
